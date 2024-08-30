@@ -1,10 +1,12 @@
-import * as SDK from 'azure-devops-extension-sdk';
-import { CommonServiceIds, IProjectPageService,  getClient } from 'azure-devops-extension-api';
-import { Build, BuildDefinition, BuildQueryOrder, BuildRestClient, BuildStatus } from 'azure-devops-extension-api/Build';
-import { EnvironmentClient } from './EnvironmentClient';
-import { Environment } from '../widget-configuration/Environment';
-import { EnvironmentDeploymentRecord } from '../widget-configuration/EnvironmentDeploymentRecord';
-import { EnvironmentDetail } from '../widget-configuration/EnvironmentDetail';
+import * as SDK from "azure-devops-extension-sdk";
+import {
+  CommonServiceIds,
+  IProjectPageService,
+  getClient,
+} from "azure-devops-extension-api";
+import { EnvironmentClient } from "./EnvironmentClient";
+import { EnvironmentDetail } from "../widget-configuration/EnvironmentDetail";
+import { Environment } from "../widget-configuration/Environment";
 
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
@@ -14,61 +16,42 @@ async function getCurrentProjectId(): Promise<string | undefined> {
   return project?.id;
 }
 
-export async function getLastestBuild( pipelineId: number ): Promise<Build | undefined> {
-  const projectId = await getCurrentProjectId();
-  const builds = await getClient(BuildRestClient).getBuilds(
-    projectId!, 
-    [pipelineId],
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    BuildStatus.Completed,
-    undefined,
-    undefined,
-    undefined,
-    1 /*top*/,
-    undefined,
-    undefined,
-    undefined,
-    BuildQueryOrder.StartTimeDescending,
-    undefined,
-    undefined,
-    undefined,
-    undefined
-  );
-  return builds.length > 0 ? builds[0] : undefined;
-}
-
-export async function getPipelineDefinition(pipelineId: number): Promise<BuildDefinition> {
-  const projectId = await getCurrentProjectId();
-  return await getClient(BuildRestClient).getDefinition(projectId!, pipelineId);
-}
-
-export async function getDeploymentRecords(): Promise<EnvironmentDetail[]> {
+export async function getAllEnvironments(): Promise<Environment[]> {
   const projectId = await getCurrentProjectId();
   const environments = await getClient(EnvironmentClient).getAllEnvironments(
     projectId!
   );
 
-  console.log(environments);
-  
-  const environmentDetails: EnvironmentDetail[] = [];
+  return environments;
+}
 
-  for(let i = 0; i < environments.length; i++) {
-    const environment = environments[i];
-    const deploymentRecords = await getClient(
-      EnvironmentClient
-    ).getAllDeploymentRecords(projectId!, environment.id);
-    environmentDetails.push({
-      name: environment.name,
-      deploymentRecordCount: deploymentRecords.length ?? 0,
-    });
+export async function getDeploymentRecords(
+  environmentId: number
+): Promise<EnvironmentDetail[]> {
+  const projectId = await getCurrentProjectId();
+  const map = new Map<string, number>();
+
+  const deploymentRecords = await getClient(
+    EnvironmentClient
+  ).getAllDeploymentRecords(projectId!, environmentId);
+
+  for (let j = 0; j < deploymentRecords.length; j++) {
+    const key = deploymentRecords[j].definition.name;
+    const currentValue = map.get(key);
+    if (currentValue) {
+      map.set(key, currentValue + 1);
+    } else {
+      map.set(key, 1);
+    }
   }
 
-  console.log(environmentDetails);
+  const environmentDetails: EnvironmentDetail[] = [];
+  map.forEach((value, key) => {
+    environmentDetails.push({
+      name: key,
+      deploymentRecordCount: value,
+    });
+  });
 
   return environmentDetails;
 }

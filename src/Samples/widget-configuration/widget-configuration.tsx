@@ -2,23 +2,24 @@ import "./widget-configuration.scss";
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
 import * as Dashboard from "azure-devops-extension-api/Dashboard";
-import { TextField } from "azure-devops-ui/TextField";
-import { Icon } from "azure-devops-ui/Icon";
-import { Checkbox } from "azure-devops-ui/Checkbox";
 import { showRootComponent } from "../../Common";
+import { getAllEnvironments } from "../widget-catalog/utility";
+import { Environment } from "./Environment";
+import { IListBoxItem } from "azure-devops-ui/ListBox";
+import { Dropdown } from "azure-devops-ui/Dropdown";
+import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
 
 interface ISampleWidgetConfigState {
-  pipelineId: string;
-  pipelineErrorMessage?: string;
-  blink: boolean;
+  environments: Environment[];
+  selectedEnvironment: number;
 }
 
 class SampleWidgetConfig
   extends React.Component<{}, ISampleWidgetConfigState>
-  implements Dashboard.IWidgetConfiguration
-{
+  implements Dashboard.IWidgetConfiguration {
   private widgetConfigurationContext?: Dashboard.IWidgetConfigurationContext;
   private settings: ISampleWidgetSettings = {} as ISampleWidgetSettings;
+  private scopeSelection = new DropdownSelection();
 
   componentDidMount() {
     SDK.init().then(() => {
@@ -28,46 +29,56 @@ class SampleWidgetConfig
   }
 
   render(): JSX.Element {
+
+    if (!this.state) {
+      return <div></div>;
+    }
+
+    const { environments, selectedEnvironment } = this.state;
+
+    console.log(selectedEnvironment);
+
+    const environmentListItems: IListBoxItem<{}>[] = environments.map((environment, index) => {
+      if (selectedEnvironment === environment.id) {
+        this.scopeSelection.select(index);
+      }
+      return {
+        id: String(environment.id),
+        text: environment.name,
+      };
+    });
+
     return (
       this.state && (
         <div className="content">
-          <div className="config-field">
-            <label className="config-field-title">Pipeline ID</label>
-            <TextField
-              value={this.state.pipelineId}
-              onChange={(_e, newValue) => {
-                this.updateSettingsAndNotify({ pipelineId: +newValue });
-                this.setState({ pipelineId: newValue });
-              }}
-            />
-            {this.state.pipelineErrorMessage && (
-              <div className="error-message">
-                <Icon className="error-icon" iconName="Error" />
-                {this.state.pipelineErrorMessage}
-              </div>
-            )}
-          </div>
-          <div className="config-field">
-            <Checkbox
-              label="Blink"
-              checked={this.state.blink}
-              onChange={(_e, newValue) => {
-                this.updateSettingsAndNotify({ blink: newValue });
-                this.setState({ blink: newValue });
-              }}
-            />
+          <div className="flex-column">
+            <label className="select-label">Scope</label>
+            <div className="flex-column">
+              <Dropdown
+                ariaLabel="Basic"
+                items={environmentListItems}
+                selection={this.scopeSelection}
+                onSelect={this.onSelect}
+              />
+            </div>
           </div>
         </div>
       )
     );
   }
 
-  // Called in 'onChange' handlers when any field is updated.
+  private onSelect = (event: React.SyntheticEvent<HTMLElement>, item: IListBoxItem<{}>) => {
+    const value = item.id;
+    const partialState = { selectedEnvironment: Number(value) };
+
+    this.updateSettingsAndNotify(partialState);
+    this.setState({ ...this.state, ...partialState });
+  };
+
   private async updateSettingsAndNotify(
     partialSettings: Partial<ISampleWidgetSettings>
   ) {
     this.settings = { ...this.settings, ...partialSettings };
-    // lights up the Save button, and tells the widget about live updates.
     const customSettings = this.serializeWidgetSettings(this.settings);
     await this.widgetConfigurationContext?.notify(
       Dashboard.ConfigurationEvent.ConfigurationChange,
@@ -89,25 +100,24 @@ class SampleWidgetConfig
   ) {
     const deserialized: ISampleWidgetSettings | null = JSON.parse(
       widgetSettings.customSettings.data
-    );
+    )
 
     if (deserialized) {
       this.settings = deserialized;
     }
 
-    this.setState({
-      pipelineId: deserialized?.pipelineId.toString() ?? "",
-      blink: deserialized?.blink ?? false,
-    });
+    const environments = await getAllEnvironments();
+    const selectedEnvironment = Number(deserialized?.selectedEnvironment) ?? environments[0].id;
+
+    this.setState({ selectedEnvironment, environments: environments });
   }
 
   private async validateSettings(): Promise<boolean> {
-    
+
     return true;
   }
 
-  async load(widgetSettings: Dashboard.WidgetSettings, widgetConfigurationContext: Dashboard.IWidgetConfigurationContext ): Promise<Dashboard.WidgetStatus> {
-    // capture context so we can notify in updateStateAndNotify
+  async load(widgetSettings: Dashboard.WidgetSettings, widgetConfigurationContext: Dashboard.IWidgetConfigurationContext): Promise<Dashboard.WidgetStatus> {
     this.widgetConfigurationContext = widgetConfigurationContext;
 
     await this.setStateFromWidgetSettings(widgetSettings);

@@ -15,7 +15,6 @@ export class EnvironmentClient extends RestClientBase {
   }
 
   public async getAllEnvironments(project: string): Promise<Environment[]> {
-    console.log("Getting all environments");
     return this.beginRequest<Environment[]>({
       apiVersion: "7.2-preview.1",
       routeTemplate: "{project}/_apis/pipelines/environments",

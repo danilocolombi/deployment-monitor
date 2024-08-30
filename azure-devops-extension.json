@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "environment-monitor",
     "publisher": "danilocolombi",
-    "version": "1.0.28",
+    "version": "1.0.34",
     "name": "Environment Monitor",
     "description": "Azure DevOps Extension",
     "categories": [

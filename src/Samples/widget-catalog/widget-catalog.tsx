@@ -15,7 +15,7 @@ import {
 import { showRootComponent } from "../../Common";
 import { ObservableValue } from "azure-devops-ui/Core/Observable";
 import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
-import { Observer } from "azure-devops-ui/Observer";  
+import { Observer } from "azure-devops-ui/Observer";
 import { EnvironmentDetail } from "../widget-configuration/EnvironmentDetail";
 import { getDeploymentRecords } from "./utility";
 
@@ -36,11 +36,8 @@ class SampleWidget extends React.Component<{}, ISampleWidgetState> implements Da
     if (!this.state) {
       return <div></div>;
     }
-    
-    const { title, environmentDetails } = this.state;
 
-    console.log("From state")
-    console.log(environmentDetails);
+    const { title, environmentDetails } = this.state;
 
     const rawTableItems: ITableItem[] = environmentDetails.map(environmentDetail => ({
       name: environmentDetail.name,
@@ -75,7 +72,7 @@ class SampleWidget extends React.Component<{}, ISampleWidgetState> implements Da
     );
 
     return (
-      this.state && <Card className="flex-grow bolt-table-card" titleProps={{ ariaLevel: 3 }}>
+      this.state && <Card className="flex-grow bolt-table-card" titleProps={{ text: title, ariaLevel: 3 }}>
         <Observer itemProvider={itemProvider}>
           {(observableProps: { itemProvider: ArrayItemProvider<ITableItem> }) => (
             <Table<ITableItem>
@@ -117,12 +114,15 @@ class SampleWidget extends React.Component<{}, ISampleWidgetState> implements Da
   }
 
   private async setStateFromWidgetSettings(widgetSettings: Dashboard.WidgetSettings) {
-    const environmentDetails = await getDeploymentRecords();
     try {
-      this.setState({
-        title: "Environment Monitor",
-        environmentDetails,
-      });
+      const deserialized: ISampleWidgetSettings = JSON.parse(
+        widgetSettings.customSettings.data
+      ) ?? {};
+
+      const environmentDetails = await getDeploymentRecords(deserialized.selectedEnvironment);
+
+      this.setState({ ...deserialized, title: widgetSettings.name, environmentDetails });
+
     } catch (e) {
       console.log(e);
     }
@@ -139,7 +139,7 @@ export interface ITableItem extends ISimpleTableCell {
 const columns: ITableColumn<ITableItem>[] = [
   {
     id: "name",
-    name: "Name",
+    name: "Pipeline Name",
     readonly: true,
     renderCell: renderSimpleCell,
     sortProps: {

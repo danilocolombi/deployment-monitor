@@ -1,4 +1,4 @@
 interface ISampleWidgetSettings {
-  pipelineId: number;
-  blink: boolean;
+  selectedEnvironment: number;
+  title: string;
 }

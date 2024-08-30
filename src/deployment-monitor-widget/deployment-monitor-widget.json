@@ -8,10 +8,10 @@
                 ".sample-widget.config"
             ],
             "properties": {
-                "name": "Sample widget",
-                "description": "Shows current pipeline status",
+                "name": "Deployment Monitor Widget",
+                "description": "Shows how many times a deployment has been executed in a given environment.",
                 "catalogIconUrl": "logo.png",
-                "uri": "dist/widget-catalog/widget-catalog.html",
+                "uri": "dist/deployment-monitor-widget/deployment-monitor-widget.html",
                 "isNameConfigurable": true,
                 "supportedSizes": [{ "rowSpan": 4, "columnSpan": 4 }],
                 "supportedScopes": ["project_team"]

@@ -1,4 +1,4 @@
-import "./widget-catalog.scss";
+import "./deployment-monitor-widget.scss";
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
 import * as Dashboard from "azure-devops-extension-api/Dashboard";
@@ -12,23 +12,23 @@ import {
   SortOrder,
   Table,
 } from "azure-devops-ui/Table";
-import { showRootComponent } from "../../Common";
 import { ObservableValue } from "azure-devops-ui/Core/Observable";
 import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
 import { Observer } from "azure-devops-ui/Observer";
-import { EnvironmentDetail } from "../widget-configuration/EnvironmentDetail";
+import { EnvironmentDetails } from "./environment-details";
 import { getDeploymentRecords } from "./utility";
+import { showRootComponent } from "../../common";
 
-interface ISampleWidgetState {
+interface IDeploymentMonitorWidgetState {
   title: string;
-  environmentDetails: EnvironmentDetail[];
+  environmentDetails: EnvironmentDetails[];
 }
 
-class SampleWidget extends React.Component<{}, ISampleWidgetState> implements Dashboard.IConfigurableWidget {
+class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidgetState> implements Dashboard.IConfigurableWidget {
 
   componentDidMount() {
     SDK.init().then(() => {
-      SDK.register("sample-widget", this);
+      SDK.register("deployment-monitor-widget", this);
     });
   }
 
@@ -115,7 +115,7 @@ class SampleWidget extends React.Component<{}, ISampleWidgetState> implements Da
 
   private async setStateFromWidgetSettings(widgetSettings: Dashboard.WidgetSettings) {
     try {
-      const deserialized: ISampleWidgetSettings = JSON.parse(
+      const deserialized: IDeploymentMonitorWidgetSettings = JSON.parse(
         widgetSettings.customSettings.data
       ) ?? {};
 
@@ -129,7 +129,7 @@ class SampleWidget extends React.Component<{}, ISampleWidgetState> implements Da
   }
 }
 
-showRootComponent(<SampleWidget />);
+showRootComponent(<DeploymentMonitorWidget />);
 
 export interface ITableItem extends ISimpleTableCell {
   name: string;

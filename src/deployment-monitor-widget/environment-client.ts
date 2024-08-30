@@ -6,8 +6,8 @@
 
 import { IVssRestClientOptions } from "azure-devops-extension-api";
 import { RestClientBase } from "azure-devops-extension-api/Common/RestClientBase";
-import { Environment } from "../widget-configuration/Environment";
-import { EnvironmentDeploymentRecord } from "../widget-configuration/EnvironmentDeploymentRecord";
+import { EnvironmentDeploymentRecord } from "./environment-deployment-record";
+import { Environment } from "./environment";
 
 export class EnvironmentClient extends RestClientBase {
   constructor(options: IVssRestClientOptions) {

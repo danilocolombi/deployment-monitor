@@ -4,9 +4,9 @@ import {
   IProjectPageService,
   getClient,
 } from "azure-devops-extension-api";
-import { EnvironmentClient } from "./EnvironmentClient";
-import { EnvironmentDetail } from "../widget-configuration/EnvironmentDetail";
-import { Environment } from "../widget-configuration/Environment";
+import { EnvironmentClient } from "./environment-client";
+import { EnvironmentDetails } from "./environment-details";
+import { Environment } from "./environment";
 
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
@@ -27,7 +27,7 @@ export async function getAllEnvironments(): Promise<Environment[]> {
 
 export async function getDeploymentRecords(
   environmentId: number
-): Promise<EnvironmentDetail[]> {
+): Promise<EnvironmentDetails[]> {
   const projectId = await getCurrentProjectId();
   const map = new Map<string, number>();
 
@@ -45,7 +45,7 @@ export async function getDeploymentRecords(
     }
   }
 
-  const environmentDetails: EnvironmentDetail[] = [];
+  const environmentDetails: EnvironmentDetails[] = [];
   map.forEach((value, key) => {
     environmentDetails.push({
       name: key,

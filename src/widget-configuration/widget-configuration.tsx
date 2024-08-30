@@ -2,9 +2,9 @@ import "./widget-configuration.scss";
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
 import * as Dashboard from "azure-devops-extension-api/Dashboard";
-import { showRootComponent } from "../../Common";
-import { getAllEnvironments } from "../widget-catalog/utility";
-import { Environment } from "./Environment";
+import { showRootComponent } from "../../common";
+import { getAllEnvironments } from "../deployment-monitor-widget/utility";
+import { Environment } from "../deployment-monitor-widget/environment";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { Dropdown } from "azure-devops-ui/Dropdown";
 import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
@@ -18,7 +18,7 @@ class SampleWidgetConfig
   extends React.Component<{}, ISampleWidgetConfigState>
   implements Dashboard.IWidgetConfiguration {
   private widgetConfigurationContext?: Dashboard.IWidgetConfigurationContext;
-  private settings: ISampleWidgetSettings = {} as ISampleWidgetSettings;
+  private settings: IDeploymentMonitorWidgetSettings = {} as IDeploymentMonitorWidgetSettings;
   private scopeSelection = new DropdownSelection();
 
   componentDidMount() {
@@ -76,7 +76,7 @@ class SampleWidgetConfig
   };
 
   private async updateSettingsAndNotify(
-    partialSettings: Partial<ISampleWidgetSettings>
+    partialSettings: Partial<IDeploymentMonitorWidgetSettings>
   ) {
     this.settings = { ...this.settings, ...partialSettings };
     const customSettings = this.serializeWidgetSettings(this.settings);
@@ -87,7 +87,7 @@ class SampleWidgetConfig
   }
 
   private serializeWidgetSettings(
-    settings: ISampleWidgetSettings
+    settings: IDeploymentMonitorWidgetSettings
   ): Dashboard.CustomSettings {
     return {
       data: JSON.stringify(settings),
@@ -98,7 +98,7 @@ class SampleWidgetConfig
   private async setStateFromWidgetSettings(
     widgetSettings: Dashboard.WidgetSettings
   ) {
-    const deserialized: ISampleWidgetSettings | null = JSON.parse(
+    const deserialized: IDeploymentMonitorWidgetSettings | null = JSON.parse(
       widgetSettings.customSettings.data
     )
 

@@ -15,18 +15,3 @@
     margin: 0
 }
 
-.status {
-    font-size: 70pt;
-    text-align: center;
-}
-
-.blink {
-    animation: blinker 1.5s linear infinite;
-}
-
-@keyframes blinker {
-    50% {
-        opacity: 0;
-    }
-}
-

@@ -5,7 +5,7 @@
             "type": "ms.vss-dashboards-web.widget-configuration",
             "targets": ["ms.vss-dashboards-web.widget-configuration"],
             "properties": {
-                "name": "Sample widget configuration",
+                "name": "Deployment monitor widget configuration",
                 "uri": "dist/widget-configuration/widget-configuration.html"
             }
         }

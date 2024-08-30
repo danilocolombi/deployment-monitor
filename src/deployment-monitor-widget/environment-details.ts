@@ -1,4 +1,4 @@
-export interface EnvironmentDetail {
+export interface EnvironmentDetails {
   name: string;
   deploymentRecordCount: number;
 }

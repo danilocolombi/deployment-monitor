@@ -1,0 +1,32 @@
+{
+  "manifestVersion": 1,
+  "id": "deployment-monitor-dev",
+  "publisher": "danilocolombi",
+  "version": "0.0.1",
+  "name": "Deployment Monitor [DEV]",
+  "description": "Azure DevOps Extension",
+  "categories": ["Azure Pipelines"],
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "icons": {
+    "default": "logo.png"
+  },
+  "content": {
+    "details": {
+      "path": "overview.md"
+    }
+  },
+  "files": [
+    {
+      "path": "static",
+      "addressable": true
+    },
+    {
+      "path": "dist",
+      "addressable": true
+    }
+  ]
+}

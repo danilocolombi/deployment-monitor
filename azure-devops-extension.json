@@ -1,16 +1,12 @@
 {
     "manifestVersion": 1,
-    "id": "environment-monitor",
+    "id": "deployment-monitor",
     "publisher": "danilocolombi",
-    "version": "1.0.34",
-    "name": "Environment Monitor",
+    "version": "0.0.1",
+    "name": "Deployment Monitor",
     "description": "Azure DevOps Extension",
     "categories": [
-        "Azure Repos",
-        "Azure Boards",
-        "Azure Pipelines",
-        "Azure Test Plans",
-        "Azure Artifacts"
+        "Azure Pipelines"
     ],
     "targets": [
         {

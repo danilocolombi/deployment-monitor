@@ -1,4 +1,4 @@
-interface ISampleWidgetSettings {
+interface IDeploymentMonitorWidgetSettings {
   selectedEnvironment: number;
   title: string;
 }

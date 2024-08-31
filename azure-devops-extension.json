@@ -19,7 +19,14 @@
   "content": {
     "details": {
       "path": "README.md"
+    },
+    "license": {
+      "path": "LICENSE"
     }
+  },
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/danilocolombi/deployment-monitor"
   },
   "files": [
     {

@@ -23,5 +23,5 @@ jobs:
     - name: Publish extension
       run: >
         tfx extension publish
-        --manifest-globs azure-devops-extension.json src/components/**/*.json
+        --manifest-globs azure-devops-extension.json src/**/*.json
         --token "${{ secrets.AZURE_DEVOPS_TOKEN }}"

@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "deployment-monitor",
   "publisher": "danilocolombi",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "name": "Deployment Monitor",
   "description": "A Azure DevOps extension designed to deliver insightful analytics on the deployment process.",
   "public": true,

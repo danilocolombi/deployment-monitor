@@ -1,16 +1,13 @@
 {
-    "contributions": [
-        {
-            "id": "sample-widget.config",
-            "type": "ms.vss-dashboards-web.widget-configuration",
-            "targets": ["ms.vss-dashboards-web.widget-configuration"],
-            "properties": {
-                "name": "Deployment monitor widget configuration",
-                "uri": "dist/widget-configuration/widget-configuration.html"
-            }
-        }
-    ],
-    "scopes": [
-        "vso.build"
-    ]
+  "contributions": [
+    {
+      "id": "deployment-widget.config",
+      "type": "ms.vss-dashboards-web.widget-configuration",
+      "targets": ["ms.vss-dashboards-web.widget-configuration"],
+      "properties": {
+        "name": "Deployment monitor widget configuration",
+        "uri": "dist/widget-configuration/widget-configuration.html"
+      }
+    }
+  ]
 }

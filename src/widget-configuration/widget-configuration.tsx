@@ -23,7 +23,7 @@ class SampleWidgetConfig
 
   componentDidMount() {
     SDK.init().then(() => {
-      SDK.register("sample-widget.config", this);
+      SDK.register("deployment-widget.config", this);
       SDK.resize(400, 200);
     });
   }

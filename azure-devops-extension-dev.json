@@ -2,10 +2,9 @@
   "manifestVersion": 1,
   "id": "deployment-monitor-dev",
   "publisher": "danilocolombi",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "name": "Deployment Monito [DEV]",
   "description": "A Azure DevOps extension designed to deliver insightful analytics on the deployment process.",
-  "public": true,
   "categories": ["Azure Pipelines"],
   "tags": ["Deployment", "Pipelines", "Environments"],
   "targets": [
@@ -19,7 +18,14 @@
   "content": {
     "details": {
       "path": "README.md"
+    },
+    "license": {
+      "path": "LICENSE"
     }
+  },
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/danilocolombi/deployment-monitor"
   },
   "files": [
     {

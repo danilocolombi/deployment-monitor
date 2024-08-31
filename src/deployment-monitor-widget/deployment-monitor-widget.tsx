@@ -28,7 +28,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
 
   componentDidMount() {
     SDK.init().then(() => {
-      SDK.register("deployment-monitor-widget", this);
+      SDK.register("deployments-widget", this);
     });
   }
 

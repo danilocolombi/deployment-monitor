@@ -2,12 +2,12 @@ import "./widget-configuration.scss";
 import * as React from "react";
 import * as SDK from "azure-devops-extension-sdk";
 import * as Dashboard from "azure-devops-extension-api/Dashboard";
-import { showRootComponent } from "../../common";
 import { getAllEnvironments } from "../deployment-monitor-widget/utility";
 import { Environment } from "../deployment-monitor-widget/environment";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { Dropdown } from "azure-devops-ui/Dropdown";
 import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
+import { showRootComponent } from "../common";
 
 interface ISampleWidgetConfigState {
   environments: Environment[];

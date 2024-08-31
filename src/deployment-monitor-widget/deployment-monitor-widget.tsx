@@ -17,7 +17,7 @@ import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
 import { Observer } from "azure-devops-ui/Observer";
 import { EnvironmentDetails } from "./environment-details";
 import { getDeploymentRecords } from "./utility";
-import { showRootComponent } from "../../common";
+import { showRootComponent } from "../common";
 
 interface IDeploymentMonitorWidgetState {
   title: string;
@@ -151,7 +151,7 @@ const columns: ITableColumn<ITableItem>[] = [
   {
     id: "deploymentCount",
     maxWidth: 300,
-    name: "Deployment Count",
+    name: "Deployment Records Count",
     readonly: true,
     renderCell: renderSimpleCell,
     sortProps: {

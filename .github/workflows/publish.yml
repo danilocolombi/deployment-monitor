@@ -1,0 +1,27 @@
+name: 'Publish'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy Package
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Install tools used for deployment
+      run: |
+        npm install -g tfx-cli node-jq
+
+    - name: Prepare extension package
+      run: |
+        npm install
+        npm run build
+
+    - name: Publish extension
+      run: >
+        tfx extension publish
+        --manifest-globs azure-devops-extension.json src/components/**/*.json
+        --token "${{ secrets.AZURE_DEVOPS_TOKEN }}"

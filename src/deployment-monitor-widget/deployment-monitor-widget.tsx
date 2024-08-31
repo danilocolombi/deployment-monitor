@@ -17,7 +17,7 @@ import { ArrayItemProvider } from "azure-devops-ui/Utilities/Provider";
 import { Observer } from "azure-devops-ui/Observer";
 import { EnvironmentDetails } from "./environment-details";
 import { getDeploymentRecords } from "./utility";
-import { showRootComponent } from "../common";
+import { showRootComponent } from "../root";
 
 interface IDeploymentMonitorWidgetState {
   title: string;

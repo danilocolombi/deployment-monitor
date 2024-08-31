@@ -7,7 +7,7 @@ import { Environment } from "../deployment-monitor-widget/environment";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { Dropdown } from "azure-devops-ui/Dropdown";
 import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
-import { showRootComponent } from "../common";
+import { showRootComponent } from "../root";
 
 interface ISampleWidgetConfigState {
   environments: Environment[];

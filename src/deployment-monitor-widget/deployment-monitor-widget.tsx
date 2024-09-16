@@ -18,6 +18,7 @@ import { Observer } from "azure-devops-ui/Observer";
 import { EnvironmentDetails } from "./environment-details";
 import { getDeploymentRecords } from "./utility";
 import { showRootComponent } from "../root";
+import { IDeploymentMonitorWidgetSettings } from "../widget-configuration/settings";
 
 interface IDeploymentMonitorWidgetState {
   title: string;
@@ -41,6 +42,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
 
     const rawTableItems: ITableItem[] = environmentDetails.map(environmentDetail => ({
       name: environmentDetail.name,
+      environment: environmentDetail.environmentName,
       deploymentCount: environmentDetail.deploymentRecordCount,
     }));
 
@@ -61,6 +63,9 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
     const sortFunctions = [
       (item1: ITableItem, item2: ITableItem): number => {
         return item1.name.localeCompare(item2.name);
+      },
+      (item1: ITableItem, item2: ITableItem): number => {
+        return item1.environment.localeCompare(item2.environment);
       },
       (item1: ITableItem, item2: ITableItem): number => {
         return item1.deploymentCount - item2.deploymentCount;
@@ -119,7 +124,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
         widgetSettings.customSettings.data
       ) ?? {};
 
-      const environmentDetails = await getDeploymentRecords(deserialized.selectedEnvironment);
+      const environmentDetails = await getDeploymentRecords(deserialized.selectedEnvironments);
 
       this.setState({ ...deserialized, title: widgetSettings.name, environmentDetails });
 
@@ -133,6 +138,7 @@ showRootComponent(<DeploymentMonitorWidget />);
 
 export interface ITableItem extends ISimpleTableCell {
   name: string;
+  environment: string;
   deploymentCount: number;
 }
 
@@ -146,7 +152,18 @@ const columns: ITableColumn<ITableItem>[] = [
       ariaLabelAscending: "Sorted A to Z",
       ariaLabelDescending: "Sorted Z to A",
     },
-    width: new ObservableValue(-70),
+    width: new ObservableValue(-35),
+  },
+  {
+    id: "environment",
+    name: "Environment",
+    readonly: true,
+    renderCell: renderSimpleCell,
+    sortProps: {
+      ariaLabelAscending: "Sorted A to Z",
+      ariaLabelDescending: "Sorted Z to A",
+    },
+    width: new ObservableValue(-30),
   },
   {
     id: "deploymentCount",
@@ -158,7 +175,6 @@ const columns: ITableColumn<ITableItem>[] = [
       ariaLabelAscending: "Sorted low to high",
       ariaLabelDescending: "Sorted high to low",
     },
-    width: new ObservableValue(-30),
+    width: new ObservableValue(-35),
   }
 ];
-

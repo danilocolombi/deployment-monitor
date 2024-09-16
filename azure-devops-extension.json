@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "deployment-monitor",
   "publisher": "danilocolombi",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "name": "Deployment Monitor Widget",
   "description": "This extension provides clear analytics on your environment usage. It adds a widget to your Dashboard that shows how many times your application is deployed to each environment.",
   "public": true,

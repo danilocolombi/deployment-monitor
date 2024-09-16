@@ -1,4 +1,5 @@
-interface IDeploymentMonitorWidgetSettings {
-  selectedEnvironment: number;
-  title: string;
+import { Environment } from "../deployment-monitor-widget/environment";
+
+export interface IDeploymentMonitorWidgetSettings {
+  selectedEnvironments: Environment[];
 }

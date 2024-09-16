@@ -6,12 +6,14 @@ import { getAllEnvironments } from "../deployment-monitor-widget/utility";
 import { Environment } from "../deployment-monitor-widget/environment";
 import { IListBoxItem } from "azure-devops-ui/ListBox";
 import { Dropdown } from "azure-devops-ui/Dropdown";
-import { DropdownSelection } from "azure-devops-ui/Utilities/DropdownSelection";
+import { DropdownMultiSelection } from "azure-devops-ui/Utilities/DropdownSelection";
 import { showRootComponent } from "../root";
+import { Observer } from "azure-devops-ui/Observer";
+import { IDeploymentMonitorWidgetSettings } from "./settings";
 
 interface ISampleWidgetConfigState {
   environments: Environment[];
-  selectedEnvironment: number;
+  selectedEnvironments: Environment[];
 }
 
 class SampleWidgetConfig
@@ -19,7 +21,7 @@ class SampleWidgetConfig
   implements Dashboard.IWidgetConfiguration {
   private widgetConfigurationContext?: Dashboard.IWidgetConfigurationContext;
   private settings: IDeploymentMonitorWidgetSettings = {} as IDeploymentMonitorWidgetSettings;
-  private scopeSelection = new DropdownSelection();
+  private environmentsSelection = new DropdownMultiSelection();
 
   componentDidMount() {
     SDK.init().then(() => {
@@ -34,14 +36,13 @@ class SampleWidgetConfig
       return <div></div>;
     }
 
-    const { environments, selectedEnvironment } = this.state;
-
-    console.log(selectedEnvironment);
+    const { environments, selectedEnvironments } = this.state;
 
     const environmentListItems: IListBoxItem<{}>[] = environments.map((environment, index) => {
-      if (selectedEnvironment === environment.id) {
-        this.scopeSelection.select(index);
+      if (selectedEnvironments?.some((selectedEnv) => selectedEnv.id === environment.id)) {
+        this.environmentsSelection.select(index);
       }
+
       return {
         id: String(environment.id),
         text: environment.name,
@@ -54,12 +55,32 @@ class SampleWidgetConfig
           <div className="flex-column">
             <label className="select-label">Scope</label>
             <div className="flex-column">
-              <Dropdown
-                ariaLabel="Basic"
-                items={environmentListItems}
-                selection={this.scopeSelection}
-                onSelect={this.onSelect}
-              />
+
+              <Observer selection={this.onSelectMultiple}>
+                {() => {
+                  return (
+                    <Dropdown
+                      ariaLabel="Multiselect"
+                      actions={[
+                        {
+                          className: "bolt-dropdown-action-right-button",
+                          disabled: this.environmentsSelection.selectedCount === 0,
+                          iconProps: { iconName: "Clear" },
+                          text: "Clear",
+                          onClick: () => {
+                            this.clearSelection();
+                          }
+                        },
+                      ]}
+                      items={environmentListItems}
+                      selection={this.environmentsSelection}
+                      placeholder="Select projects"
+                      showFilterBox={true}
+                      onSelect={this.onSelectMultiple}
+                    />
+                  );
+                }}
+              </Observer>
             </div>
           </div>
         </div>
@@ -67,13 +88,38 @@ class SampleWidgetConfig
     );
   }
 
-  private onSelect = (event: React.SyntheticEvent<HTMLElement>, item: IListBoxItem<{}>) => {
-    const value = item.id;
-    const partialState = { selectedEnvironment: Number(value) };
+  private onSelectMultiple = (event: React.SyntheticEvent<HTMLElement>, item: IListBoxItem<{}>) => {
+    const { selectedEnvironments, environments } = this.state;
+    const selectedOption = environments.find(env => env.id === Number(item.id));
 
+    if (selectedOption === undefined) {
+      return;
+    }
+
+    if (selectedEnvironments === undefined) {
+      this.updateSelectedEnvironments([selectedOption]);
+      return;
+    }
+
+    if (selectedEnvironments.some((environment => environment.id === selectedOption.id))) {
+      this.updateSelectedEnvironments(selectedEnvironments.filter((environment) => environment.id !== selectedOption.id));
+    }
+    else {
+      this.updateSelectedEnvironments([...selectedEnvironments, selectedOption]);
+    }
+  };
+
+  private clearSelection = () => {
+    this.environmentsSelection.clear();
+    const partialState = { selectedEnvironments: [] };
     this.updateSettingsAndNotify(partialState);
     this.setState({ ...this.state, ...partialState });
   };
+
+  private updateSelectedEnvironments(selectedEnvironments: Environment[]) {
+    this.updateSettingsAndNotify({ selectedEnvironments });
+    this.setState({ ...this.state, selectedEnvironments });
+  }
 
   private async updateSettingsAndNotify(
     partialSettings: Partial<IDeploymentMonitorWidgetSettings>
@@ -101,15 +147,17 @@ class SampleWidgetConfig
     const deserialized: IDeploymentMonitorWidgetSettings | null = JSON.parse(
       widgetSettings.customSettings.data
     )
+    
+    const environments = await getAllEnvironments();
 
-    if (deserialized) {
-      this.settings = deserialized;
+    if (deserialized === undefined || deserialized?.selectedEnvironments === undefined) {
+      this.setState({ environments });
+      return;
     }
 
-    const environments = await getAllEnvironments();
-    const selectedEnvironment = Number(deserialized?.selectedEnvironment) ?? environments[0].id;
+    this.settings = deserialized;
 
-    this.setState({ selectedEnvironment, environments: environments });
+    this.setState({ ...deserialized, environments });
   }
 
   private async validateSettings(): Promise<boolean> {
@@ -125,11 +173,9 @@ class SampleWidgetConfig
   }
 
   async onSave(): Promise<Dashboard.SaveStatus> {
-    // ensure new settings values are valid; set error state for the UI at the same time
     if (!(await this.validateSettings())) {
       return Dashboard.WidgetConfigurationSave.Invalid();
     }
-    // persist new settings
     return Dashboard.WidgetConfigurationSave.Valid(
       this.serializeWidgetSettings(this.settings)
     );

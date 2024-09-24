@@ -1,6 +1,7 @@
 # Deployment Monitor
 
-This extension provides clear analytics on your environment usage. It adds a widget to your Dashboard that shows how many times your application is deployed to each environment.
+Deployment frequency is one of the key DORA metrics, and it enables you to measure your team's velocity. This extension adds a widget to your Dashboard that shows how often and how many times your application is deployed to each environment.
+To learn more about DORA, checkout [this article](https://dora.dev/guides/dora-metrics-four-keys/).
 
 ## Preview
 
@@ -9,6 +10,11 @@ This extension provides clear analytics on your environment usage. It adds a wid
 ## Install
 
 The extension can be installed from [Azure DevOps Marketplace](https://marketplace.visualstudio.com/items?itemName=danilocolombi.deployment-monitor).
+
+## Calculation
+This extension calculates the deployment frequency based on the number of deployments records of a given environment in the last year, and it uses the below rule from [this article](https://cloud.google.com/blog/products/devops-sre/using-the-four-keys-to-measure-your-devops-performance) to determine the frequency:
+
+"Deployment Frequency falls into the Daily bucket when the median number of days per week with at least one successful deployment is equal to or greater than three. To put it more simply, to qualify for “deploy daily,” you must deploy on most working days. Similarly, if you deploy most weeks, it will be weekly, and then monthly and so forth."
 
 ## Contributing
 

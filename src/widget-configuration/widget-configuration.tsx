@@ -74,7 +74,7 @@ class SampleWidgetConfig
                       ]}
                       items={environmentListItems}
                       selection={this.environmentsSelection}
-                      placeholder="Select projects"
+                      placeholder="Select environments"
                       showFilterBox={true}
                       onSelect={this.onSelectMultiple}
                     />

@@ -7,7 +7,6 @@ import {
 import { EnvironmentClient } from "./environment-client";
 import { EnvironmentDetails } from "./environment-details";
 import { Environment } from "./environment";
-import { EnvironmentDeploymentRecord } from "./environment-deployment-record";
 
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
@@ -39,9 +38,15 @@ export async function getDeploymentRecords(
     ).getAllDeploymentRecords(projectId!, environment.id);
 
     const map = new Map<string, number>();
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    for (let j = 0; j < deploymentRecords.length; j++) {
-      const key = deploymentRecords[j].definition.name;
+    const filteredDeploymentRecords = deploymentRecords.filter(
+      (d) => d.startTime > oneYearAgo
+    );
+
+    for (let j = 0; j < filteredDeploymentRecords.length; j++) {
+      const key = filteredDeploymentRecords[j].definition.name;
       const currentValue = map.get(key);
       if (currentValue) {
         map.set(key, currentValue + 1);
@@ -55,9 +60,28 @@ export async function getDeploymentRecords(
         name: key,
         environmentName: environment.name,
         deploymentRecordCount: value,
+        deploymentFrequency: convertQuantityToFrequency(value),
       });
     });
   }
 
   return result;
+}
+
+function convertQuantityToFrequency(quantity: number): string {
+  if (quantity === 1) {
+    return "Yearly";
+  } else if (quantity === 2) {
+    return "Every 6 months";
+  } else if (quantity > 2 && quantity < 7) {
+    return "Quarterly";
+  } else if (quantity >= 7 && quantity < 27) {
+    return "Monthly";
+  } else if (quantity >= 27 && quantity < 156) {
+    return "Weekly";
+  } else if (quantity >= 156) {
+    return "Daily";
+  } else {
+    return "Unknown";
+  }
 }

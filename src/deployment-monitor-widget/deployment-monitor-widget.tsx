@@ -44,6 +44,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
       name: environmentDetail.name,
       environment: environmentDetail.environmentName,
       deploymentCount: environmentDetail.deploymentRecordCount,
+      deploymentFrequency: environmentDetail.deploymentFrequency,
     }));
 
     const sortingBehavior = new ColumnSorting<ITableItem>(
@@ -140,6 +141,7 @@ export interface ITableItem extends ISimpleTableCell {
   name: string;
   environment: string;
   deploymentCount: number;
+  deploymentFrequency: string;
 }
 
 const columns: ITableColumn<ITableItem>[] = [
@@ -152,7 +154,7 @@ const columns: ITableColumn<ITableItem>[] = [
       ariaLabelAscending: "Sorted A to Z",
       ariaLabelDescending: "Sorted Z to A",
     },
-    width: new ObservableValue(-35),
+    width: new ObservableValue(-30),
   },
   {
     id: "environment",
@@ -163,18 +165,28 @@ const columns: ITableColumn<ITableItem>[] = [
       ariaLabelAscending: "Sorted A to Z",
       ariaLabelDescending: "Sorted Z to A",
     },
-    width: new ObservableValue(-30),
+    width: new ObservableValue(-20),
   },
   {
     id: "deploymentCount",
-    maxWidth: 300,
-    name: "Deployment Records Count",
+    name: "Deployment Count",
     readonly: true,
     renderCell: renderSimpleCell,
     sortProps: {
       ariaLabelAscending: "Sorted low to high",
       ariaLabelDescending: "Sorted high to low",
     },
-    width: new ObservableValue(-35),
-  }
+    width: new ObservableValue(-20),
+  },
+  {
+    id: "deploymentFrequency",
+    name: "Frequency",
+    readonly: true,
+    renderCell: renderSimpleCell,
+    sortProps: {
+      ariaLabelAscending: "Sorted A to Z",
+      ariaLabelDescending: "Sorted Z to A",
+    },
+    width: new ObservableValue(-30),
+  },
 ];

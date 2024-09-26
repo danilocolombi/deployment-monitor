@@ -8,15 +8,18 @@ import { IVssRestClientOptions } from "azure-devops-extension-api";
 import { RestClientBase } from "azure-devops-extension-api/Common/RestClientBase";
 import { EnvironmentDeploymentRecord } from "./environment-deployment-record";
 import { Environment } from "./environment";
+import { Response } from "./response";
 
 export class EnvironmentClient extends RestClientBase {
   constructor(options: IVssRestClientOptions) {
     super(options);
   }
 
-  public async getAllEnvironments(project: string): Promise<Environment[]> {
-    return this.beginRequest<Environment[]>({
-      apiVersion: "7.2-preview.1",
+  public async getAllEnvironments(
+    project: string
+  ): Promise<Response<Environment>> {
+    return this.beginRequest<Response<Environment>>({
+      apiVersion: "",
       routeTemplate: "{project}/_apis/pipelines/environments",
       routeValues: {
         project: project,
@@ -24,9 +27,12 @@ export class EnvironmentClient extends RestClientBase {
     });
   }
 
-  public async getAllDeploymentRecords(project: string, environmentId: number): Promise<EnvironmentDeploymentRecord[]> {
-    return this.beginRequest<EnvironmentDeploymentRecord[]>({
-      apiVersion: "7.2-preview.1",
+  public async getAllDeploymentRecords(
+    project: string,
+    environmentId: number
+  ): Promise<Response<EnvironmentDeploymentRecord>> {
+    return this.beginRequest<Response<EnvironmentDeploymentRecord>>({
+      apiVersion: "",
       routeTemplate:
         "{project}/_apis/pipelines/environments/{environmentId}/environmentdeploymentrecords",
       routeValues: {

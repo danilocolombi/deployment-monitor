@@ -7,6 +7,7 @@ import {
 import { EnvironmentClient } from "./environment-client";
 import { EnvironmentDetails } from "./environment-details";
 import { Environment } from "./environment";
+import { EnvironmentDeploymentRecord } from "./environment-deployment-record";
 
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
@@ -22,7 +23,7 @@ export async function getAllEnvironments(): Promise<Environment[]> {
     projectId!
   );
 
-  return environments;
+  return environments.value;
 }
 
 export async function getDeploymentRecords(
@@ -33,7 +34,7 @@ export async function getDeploymentRecords(
   const result: EnvironmentDetails[] = [];
 
   for (let environment of environments) {
-    const deploymentRecords = await getClient(
+    const { value } = await getClient(
       EnvironmentClient
     ).getAllDeploymentRecords(projectId!, environment.id);
 
@@ -41,9 +42,9 @@ export async function getDeploymentRecords(
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    const filteredDeploymentRecords = deploymentRecords.filter(
-      (d) => d.startTime > oneYearAgo
-    );
+    const filteredDeploymentRecords = value.filter((d) => {
+      return new Date(d.startTime) > oneYearAgo;
+    });
 
     for (let j = 0; j < filteredDeploymentRecords.length; j++) {
       const key = filteredDeploymentRecords[j].definition.name;

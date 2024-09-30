@@ -8,6 +8,7 @@ import {
   ISimpleTableCell,
   ITableColumn,
   renderSimpleCell,
+  SimpleTableCell,
   sortItems,
   SortOrder,
   Table,
@@ -19,6 +20,8 @@ import { EnvironmentDetails } from "./environment-details";
 import { getDeploymentRecords } from "./utility";
 import { showRootComponent } from "../root";
 import { IDeploymentMonitorWidgetSettings } from "../widget-configuration/settings";
+import { Tooltip } from "azure-devops-ui/TooltipEx";
+import { Link } from "azure-devops-ui/Link";
 
 interface IDeploymentMonitorWidgetState {
   title: string;
@@ -45,6 +48,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
       environment: environmentDetail.environmentName,
       deploymentCount: environmentDetail.deploymentRecordCount,
       deploymentFrequency: environmentDetail.deploymentFrequency,
+      pipelineUrl: environmentDetail.pipelineUrl,
     }));
 
     const sortingBehavior = new ColumnSorting<ITableItem>(
@@ -142,6 +146,7 @@ export interface ITableItem extends ISimpleTableCell {
   environment: string;
   deploymentCount: number;
   deploymentFrequency: string;
+  pipelineUrl: string;
 }
 
 const columns: ITableColumn<ITableItem>[] = [
@@ -149,7 +154,7 @@ const columns: ITableColumn<ITableItem>[] = [
     id: "name",
     name: "Pipeline Name",
     readonly: true,
-    renderCell: renderSimpleCell,
+    renderCell: renderPipelineNameCell,
     sortProps: {
       ariaLabelAscending: "Sorted A to Z",
       ariaLabelDescending: "Sorted Z to A",
@@ -190,3 +195,30 @@ const columns: ITableColumn<ITableItem>[] = [
     width: new ObservableValue(-30),
   },
 ];
+function renderPipelineNameCell(
+  rowIndex: number,
+  columnIndex: number,
+  tableColumn: ITableColumn<ITableItem>,
+  tableItem: ITableItem
+): JSX.Element {
+  const item = tableItem;
+  return (
+    <SimpleTableCell
+      columnIndex={columnIndex}
+      tableColumn={tableColumn}
+      key={"col-" + columnIndex}
+    >
+      <span className="flex-row wrap-text">
+        <Link
+          className="bolt-table-link bolt-table-inline-link"
+          excludeTabStop
+          href={item.pipelineUrl}
+          target="_blank"
+        >
+          {item.name}
+        </Link>
+      </span>
+    </SimpleTableCell>
+  );
+}
+

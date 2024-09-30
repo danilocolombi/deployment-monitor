@@ -13,4 +13,13 @@ export interface EnvironmentDeploymentRecord {
 interface Definition {
   id: number;
   name: string;
+  _links: Links;
+}
+
+interface Links {
+  web: Web;
+}
+
+interface Web {
+  href: string;
 }

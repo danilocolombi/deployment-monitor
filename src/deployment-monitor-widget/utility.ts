@@ -7,7 +7,6 @@ import {
 import { EnvironmentClient } from "./environment-client";
 import { EnvironmentDetails } from "./environment-details";
 import { Environment } from "./environment";
-import { EnvironmentDeploymentRecord } from "./environment-deployment-record";
 
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
@@ -16,6 +15,7 @@ async function getCurrentProjectId(): Promise<string | undefined> {
   const project = await pps.getProject();
   return project?.id;
 }
+
 
 export async function getAllEnvironments(): Promise<Environment[]> {
   const projectId = await getCurrentProjectId();
@@ -38,7 +38,7 @@ export async function getDeploymentRecords(
       EnvironmentClient
     ).getAllDeploymentRecords(projectId!, environment.id);
 
-    const map = new Map<string, number>();
+    const map = new Map<string, { count: number; piplineUrl: string }>();
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
@@ -50,9 +50,9 @@ export async function getDeploymentRecords(
       const key = filteredDeploymentRecords[j].definition.name;
       const currentValue = map.get(key);
       if (currentValue) {
-        map.set(key, currentValue + 1);
+        map.set(key, {...currentValue, count: currentValue.count + 1});
       } else {
-        map.set(key, 1);
+        map.set(key, { count: 1, piplineUrl: filteredDeploymentRecords[j].definition._links.web.href });
       }
     }
 
@@ -60,12 +60,13 @@ export async function getDeploymentRecords(
       result.push({
         name: key,
         environmentName: environment.name,
-        deploymentRecordCount: value,
-        deploymentFrequency: convertQuantityToFrequency(value),
+        deploymentRecordCount: value.count,
+        deploymentFrequency: convertQuantityToFrequency(value.count),
+        pipelineUrl: value.piplineUrl,
       });
     });
   }
-
+  
   return result;
 }
 

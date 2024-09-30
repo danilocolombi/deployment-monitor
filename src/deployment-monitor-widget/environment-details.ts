@@ -3,4 +3,5 @@ export interface EnvironmentDetails {
   environmentName: string;
   deploymentRecordCount: number;
   deploymentFrequency: string;
+  pipelineUrl: string;
 }

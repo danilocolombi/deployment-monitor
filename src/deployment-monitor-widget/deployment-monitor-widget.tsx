@@ -20,7 +20,6 @@ import { EnvironmentDetails } from "./environment-details";
 import { getDeploymentRecords } from "./utility";
 import { showRootComponent } from "../root";
 import { IDeploymentMonitorWidgetSettings } from "../widget-configuration/settings";
-import { Tooltip } from "azure-devops-ui/TooltipEx";
 import { Link } from "azure-devops-ui/Link";
 
 interface IDeploymentMonitorWidgetState {
@@ -153,40 +152,36 @@ const columns: ITableColumn<ITableItem>[] = [
   {
     id: "name",
     name: "Pipeline Name",
-    readonly: true,
     renderCell: renderPipelineNameCell,
     sortProps: {
       ariaLabelAscending: "Sorted A to Z",
       ariaLabelDescending: "Sorted Z to A",
     },
-    width: new ObservableValue(-30),
+    width: -30,
   },
   {
     id: "environment",
     name: "Environment",
-    readonly: true,
     renderCell: renderSimpleCell,
     sortProps: {
       ariaLabelAscending: "Sorted A to Z",
       ariaLabelDescending: "Sorted Z to A",
     },
-    width: new ObservableValue(-20),
+    width: -20,
   },
   {
     id: "deploymentCount",
     name: "Deployment Count",
-    readonly: true,
     renderCell: renderSimpleCell,
     sortProps: {
       ariaLabelAscending: "Sorted low to high",
       ariaLabelDescending: "Sorted high to low",
     },
-    width: new ObservableValue(-20),
+    width: -20,
   },
   {
     id: "deploymentFrequency",
     name: "Frequency",
-    readonly: true,
     renderCell: renderSimpleCell,
     sortProps: {
       ariaLabelAscending: "Sorted A to Z",
@@ -210,8 +205,7 @@ function renderPipelineNameCell(
     >
       <span className="flex-row wrap-text">
         <Link
-          className="bolt-table-link bolt-table-inline-link"
-          excludeTabStop
+          className="bolt-table-link bolt-link no-underline-link text-ellipsis small-margin bolt-link"
           href={item.pipelineUrl}
           target="_blank"
         >

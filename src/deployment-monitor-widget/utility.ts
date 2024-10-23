@@ -7,6 +7,7 @@ import {
 import { EnvironmentClient } from "./environment-client";
 import { EnvironmentDetails } from "./environment-details";
 import { Environment } from "./environment";
+import { TaskResult } from "azure-devops-extension-api/Build";
 
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
@@ -15,7 +16,6 @@ async function getCurrentProjectId(): Promise<string | undefined> {
   const project = await pps.getProject();
   return project?.id;
 }
-
 
 export async function getAllEnvironments(): Promise<Environment[]> {
   const projectId = await getCurrentProjectId();
@@ -43,16 +43,21 @@ export async function getDeploymentRecords(
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
     const filteredDeploymentRecords = value.filter((d) => {
-      return new Date(d.startTime) > oneYearAgo;
+      return (
+        new Date(d.startTime) > oneYearAgo && d.result === TaskResult.Succeeded
+      );
     });
 
     for (let j = 0; j < filteredDeploymentRecords.length; j++) {
       const key = filteredDeploymentRecords[j].definition.name;
       const currentValue = map.get(key);
       if (currentValue) {
-        map.set(key, {...currentValue, count: currentValue.count + 1});
+        map.set(key, { ...currentValue, count: currentValue.count + 1 });
       } else {
-        map.set(key, { count: 1, piplineUrl: filteredDeploymentRecords[j].definition._links.web.href });
+        map.set(key, {
+          count: 1,
+          piplineUrl: filteredDeploymentRecords[j].definition._links.web.href,
+        });
       }
     }
 
@@ -66,7 +71,7 @@ export async function getDeploymentRecords(
       });
     });
   }
-  
+
   return result;
 }
 

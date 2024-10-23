@@ -1,10 +1,9 @@
-import { TaskResult } from "azure-devops-extension-api/Build";
 
 export interface EnvironmentDeploymentRecord {
   id: number;
   environmentId: number;
   definition: Definition;
-  result: TaskResult;
+  result: string;
   queueTime: Date;
   startTime: Date;
   finishTime: Date;

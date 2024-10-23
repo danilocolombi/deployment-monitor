@@ -44,7 +44,8 @@ export async function getDeploymentRecords(
 
     const filteredDeploymentRecords = value.filter((d) => {
       return (
-        new Date(d.startTime) > oneYearAgo && d.result === TaskResult.Succeeded
+        new Date(d.startTime) > oneYearAgo &&
+        d.result === "succeeded"
       );
     });
 

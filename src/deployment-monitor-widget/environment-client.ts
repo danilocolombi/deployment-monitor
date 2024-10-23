@@ -33,11 +33,14 @@ export class EnvironmentClient extends RestClientBase {
   ): Promise<Response<EnvironmentDeploymentRecord>> {
     return this.beginRequest<Response<EnvironmentDeploymentRecord>>({
       apiVersion: "",
+      queryParams: {
+        top: 999
+      },
       routeTemplate:
         "{project}/_apis/pipelines/environments/{environmentId}/environmentdeploymentrecords",
       routeValues: {
         project: project,
-        environmentId: environmentId,
+        environmentId: environmentId
       },
     });
   }

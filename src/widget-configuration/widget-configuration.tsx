@@ -147,7 +147,7 @@ class SampleWidgetConfig
     const deserialized: IDeploymentMonitorWidgetSettings | null = JSON.parse(
       widgetSettings.customSettings.data
     )
-    
+
     const environments = await getAllEnvironments();
 
     if (deserialized === undefined || deserialized?.selectedEnvironments === undefined) {

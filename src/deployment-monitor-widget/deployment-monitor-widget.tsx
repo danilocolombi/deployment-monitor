@@ -44,10 +44,10 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
 
     const rawTableItems: ITableItem[] = environmentDetails.map(environmentDetail => ({
       name: environmentDetail.name,
-      environment: environmentDetail.environmentName,
       deploymentCount: environmentDetail.deploymentRecordCount,
       deploymentFrequency: environmentDetail.deploymentFrequency,
       pipelineUrl: environmentDetail.pipelineUrl,
+      average: environmentDetail.average,
     }));
 
     const sortingBehavior = new ColumnSorting<ITableItem>(
@@ -69,10 +69,10 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
         return item1.name.localeCompare(item2.name);
       },
       (item1: ITableItem, item2: ITableItem): number => {
-        return item1.environment.localeCompare(item2.environment);
+        return item1.deploymentCount - item2.deploymentCount;
       },
       (item1: ITableItem, item2: ITableItem): number => {
-        return item1.deploymentCount - item2.deploymentCount;
+        return item1.average - item2.average;
       }
     ];
 
@@ -142,10 +142,10 @@ showRootComponent(<DeploymentMonitorWidget />);
 
 export interface ITableItem extends ISimpleTableCell {
   name: string;
-  environment: string;
   deploymentCount: number;
   deploymentFrequency: string;
   pipelineUrl: string;
+  average: number;
 }
 
 const columns: ITableColumn<ITableItem>[] = [
@@ -160,18 +160,18 @@ const columns: ITableColumn<ITableItem>[] = [
     width: -30,
   },
   {
-    id: "environment",
-    name: "Environment",
+    id: "deploymentCount",
+    name: "Deployment Count",
     renderCell: renderSimpleCell,
     sortProps: {
-      ariaLabelAscending: "Sorted A to Z",
-      ariaLabelDescending: "Sorted Z to A",
+      ariaLabelAscending: "Sorted low to high",
+      ariaLabelDescending: "Sorted high to low",
     },
     width: -20,
   },
   {
-    id: "deploymentCount",
-    name: "Deployment Count",
+    id: "average",
+    name: "Average (days)",
     renderCell: renderSimpleCell,
     sortProps: {
       ariaLabelAscending: "Sorted low to high",

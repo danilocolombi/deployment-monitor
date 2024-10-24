@@ -9,6 +9,20 @@ import { EnvironmentDetails } from "./environment-details";
 import { Environment } from "./environment";
 import { EnvironmentDeploymentRecord } from "./environment-deployment-record";
 
+const SEMESTERLY = 2;
+
+// Monday to Friday
+const YEARLY_BUSINESS_DAYS = 261;
+
+// Half months in a year + 1
+const MOST_MONTHS = 7;
+
+// Half weeks in a year + 1
+const MOST_WEEKS = 27;
+
+// At least 3 times a week = 52 (weeks in a year) * 3 (days in a week)
+const MOST_DAYS = 156;
+
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
     CommonServiceIds.ProjectPageService
@@ -72,12 +86,14 @@ export async function getDeploymentRecords(
     }
 
     map.forEach((value, key) => {
+      const average = YEARLY_BUSINESS_DAYS / value.count;
       result.push({
         name: key,
         environmentName: environment.name,
         deploymentRecordCount: value.count,
         deploymentFrequency: convertQuantityToFrequency(value.count),
         pipelineUrl: value.piplineUrl,
+        average: parseFloat(average.toFixed(1)),
       });
     });
   }
@@ -88,15 +104,15 @@ export async function getDeploymentRecords(
 function convertQuantityToFrequency(quantity: number): string {
   if (quantity === 1) {
     return "Yearly";
-  } else if (quantity === 2) {
+  } else if (quantity === SEMESTERLY) {
     return "Every 6 months";
-  } else if (quantity > 2 && quantity < 7) {
+  } else if (quantity > SEMESTERLY && quantity < MOST_MONTHS) {
     return "Quarterly";
-  } else if (quantity >= 7 && quantity < 27) {
+  } else if (quantity >= MOST_MONTHS && quantity < MOST_WEEKS) {
     return "Monthly";
-  } else if (quantity >= 27 && quantity < 156) {
+  } else if (quantity >= MOST_WEEKS && quantity < MOST_DAYS) {
     return "Weekly";
-  } else if (quantity >= 156) {
+  } else if (quantity >= MOST_DAYS) {
     return "Daily";
   } else {
     return "Unknown";

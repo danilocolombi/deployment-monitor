@@ -7,7 +7,7 @@ import {
 import { EnvironmentClient } from "./environment-client";
 import { EnvironmentDetails } from "./environment-details";
 import { Environment } from "./environment";
-import { TaskResult } from "azure-devops-extension-api/Build";
+import { EnvironmentDeploymentRecord } from "./environment-deployment-record";
 
 async function getCurrentProjectId(): Promise<string | undefined> {
   const pps = await SDK.getService<IProjectPageService>(
@@ -34,19 +34,28 @@ export async function getDeploymentRecords(
   const result: EnvironmentDetails[] = [];
 
   for (let environment of environments) {
-    const { value } = await getClient(
-      EnvironmentClient
-    ).getAllDeploymentRecords(projectId!, environment.id);
+    const allEnvRecords: EnvironmentDeploymentRecord[] = [];
+    let records = await getClient(EnvironmentClient).getAllDeploymentRecords(
+      projectId!,
+      environment.id
+    );
+    allEnvRecords.push(...records.value);
+
+    while (records.continuationToken !== null) {
+      records = await getClient(EnvironmentClient).getAllDeploymentRecords(
+        projectId!,
+        environment.id,
+        records.continuationToken
+      );
+      allEnvRecords.push(...records.value);
+    }
 
     const map = new Map<string, { count: number; piplineUrl: string }>();
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    const filteredDeploymentRecords = value.filter((d) => {
-      return (
-        new Date(d.startTime) > oneYearAgo &&
-        d.result === "succeeded"
-      );
+    const filteredDeploymentRecords = allEnvRecords.filter((d) => {
+      return new Date(d.startTime) > oneYearAgo && d.result === "succeeded";
     });
 
     for (let j = 0; j < filteredDeploymentRecords.length; j++) {

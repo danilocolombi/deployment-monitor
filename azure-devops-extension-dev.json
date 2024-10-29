@@ -2,7 +2,7 @@
   "manifestVersion": 1,
   "id": "deployment-monitor-dev",
   "publisher": "danilocolombi",
-  "version": "0.0.54",
+  "version": "0.0.55",
   "name": "Deployment Monito [DEV]",
   "description": "A Azure DevOps extension designed to deliver insightful analytics on the deployment process.",
   "categories": ["Azure Pipelines"],

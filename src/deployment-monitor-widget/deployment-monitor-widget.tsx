@@ -73,7 +73,10 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
       },
       (item1: ITableItem, item2: ITableItem): number => {
         return item1.average - item2.average;
-      }
+      },
+      (item1: ITableItem, item2: ITableItem): number => {
+        return item1.deploymentFrequency.localeCompare(item2.deploymentFrequency);
+      },
     ];
 
     const itemProvider = new ObservableValue<ArrayItemProvider<ITableItem>>(

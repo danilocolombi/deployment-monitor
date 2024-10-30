@@ -21,18 +21,86 @@ import { getDeploymentRecords } from "./utility";
 import { showRootComponent } from "../root";
 import { IDeploymentMonitorWidgetSettings } from "../widget-configuration/settings";
 import { Link } from "azure-devops-ui/Link";
+import { FilterBar } from "azure-devops-ui/FilterBar";
+import { Filter, FILTER_CHANGE_EVENT, IFilterState } from "azure-devops-ui/Utilities/Filter";
+import { KeywordFilterBarItem } from "azure-devops-ui/TextFilterBarItem";
 
 interface IDeploymentMonitorWidgetState {
   title: string;
   environmentDetails: EnvironmentDetails[];
 }
 
+interface FilterValue extends IFilterState {
+  pipelineName: {
+    value: string;
+  };
+}
+
 class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidgetState> implements Dashboard.IConfigurableWidget {
+  private filter: Filter;
+  private allTableItems: ITableItem[] = [];
+  private filteredTableItems: ITableItem[] = [];
+  private itemProvider = new ObservableValue<ArrayItemProvider<ITableItem>>(
+    new ArrayItemProvider([])
+  );
+  private sortFunctions = [
+    (item1: ITableItem, item2: ITableItem): number => {
+      return item1.name.localeCompare(item2.name);
+    },
+    (item1: ITableItem, item2: ITableItem): number => {
+      return item1.deploymentCount - item2.deploymentCount;
+    },
+    (item1: ITableItem, item2: ITableItem): number => {
+      return item1.average - item2.average;
+    },
+    (item1: ITableItem, item2: ITableItem): number => {
+      return item1.deploymentFrequency.localeCompare(item2.deploymentFrequency);
+    },
+  ];
+  private sortingBehavior = this.updateSortingBehavior();
+
+  constructor(props: {}) {
+    super(props);
+
+    this.filter = new Filter();
+    this.filter.subscribe(() => {
+      this.applyFilter();
+    }, FILTER_CHANGE_EVENT);
+  }
 
   componentDidMount() {
     SDK.init().then(() => {
       SDK.register("deployments-widget", this);
     });
+  }
+
+  applyFilter() {
+    const filterValue = this.filter.getState() as FilterValue;
+    if (filterValue?.pipelineName === undefined) {
+      this.filteredTableItems = this.allTableItems;
+    }
+    else {
+      this.filteredTableItems = this.allTableItems.filter(item => item.name.toLowerCase().includes(filterValue.pipelineName.value.toLowerCase()));
+    }
+
+    this.itemProvider.value = new ArrayItemProvider(this.filteredTableItems);
+    this.sortingBehavior = this.updateSortingBehavior();
+  }
+
+  updateSortingBehavior(): ColumnSorting<ITableItem> {
+    return new ColumnSorting<ITableItem>(
+      (columnIndex: number, proposedSortOrder: SortOrder) => {
+        this.itemProvider.value = new ArrayItemProvider(
+          sortItems(
+            columnIndex,
+            proposedSortOrder,
+            this.sortFunctions,
+            columns,
+            this.filteredTableItems
+          )
+        );
+      }
+    );
   }
 
   render(): JSX.Element {
@@ -42,7 +110,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
 
     const { title, environmentDetails } = this.state;
 
-    const rawTableItems: ITableItem[] = environmentDetails.map(environmentDetail => ({
+    this.allTableItems = environmentDetails.map(environmentDetail => ({
       name: environmentDetail.name,
       deploymentCount: environmentDetail.deploymentRecordCount,
       deploymentFrequency: environmentDetail.deploymentFrequency,
@@ -50,55 +118,38 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
       average: environmentDetail.average,
     }));
 
-    const sortingBehavior = new ColumnSorting<ITableItem>(
-      (columnIndex: number, proposedSortOrder: SortOrder) => {
-        itemProvider.value = new ArrayItemProvider(
-          sortItems(
-            columnIndex,
-            proposedSortOrder,
-            sortFunctions,
-            columns,
-            rawTableItems
-          )
-        );
-      }
-    );
+    this.filteredTableItems = this.allTableItems;
 
-    const sortFunctions = [
-      (item1: ITableItem, item2: ITableItem): number => {
-        return item1.name.localeCompare(item2.name);
-      },
-      (item1: ITableItem, item2: ITableItem): number => {
-        return item1.deploymentCount - item2.deploymentCount;
-      },
-      (item1: ITableItem, item2: ITableItem): number => {
-        return item1.average - item2.average;
-      },
-      (item1: ITableItem, item2: ITableItem): number => {
-        return item1.deploymentFrequency.localeCompare(item2.deploymentFrequency);
-      },
-    ];
-
-    const itemProvider = new ObservableValue<ArrayItemProvider<ITableItem>>(
-      new ArrayItemProvider(rawTableItems)
+    this.itemProvider = new ObservableValue<ArrayItemProvider<ITableItem>>(
+      new ArrayItemProvider(this.filteredTableItems)
     );
 
     return (
-      this.state && <Card className="flex-grow bolt-table-card" titleProps={{ text: title, ariaLevel: 3 }}>
-        <Observer itemProvider={itemProvider}>
-          {(observableProps: { itemProvider: ArrayItemProvider<ITableItem> }) => (
-            <Table<ITableItem>
-              ariaLabel="Pipelines Table"
-              columns={columns}
-              behaviors={[sortingBehavior]}
-              itemProvider={observableProps.itemProvider}
-              scrollable={true}
-              role="table"
-              pageSize={100}
-              containerClassName="h-scroll-auto"
-            />
-          )}
-        </Observer>
+      this.state &&
+      <Card className="bolt-table-card" titleProps={{ text: title, ariaLevel: 3 }}>
+        <div className="flex-grow">
+          <div className="flex-grow">
+            <FilterBar filter={this.filter}>
+              <KeywordFilterBarItem filterItemKey="pipelineName" placeholder="Filter by pipeline name" />
+            </FilterBar>
+          </div>
+          <div className="flex-grow">
+            <Observer itemProvider={this.itemProvider}>
+              {(observableProps: { itemProvider: ArrayItemProvider<ITableItem> }) => (
+                <Table<ITableItem>
+                  ariaLabel="Pipelines Table"
+                  columns={columns}
+                  behaviors={[this.sortingBehavior]}
+                  itemProvider={observableProps.itemProvider}
+                  scrollable={true}
+                  role="table"
+                  pageSize={100}
+                  containerClassName="h-scroll-auto"
+                />
+              )}
+            </Observer>
+          </div>
+        </div>
       </Card>
     );
   }

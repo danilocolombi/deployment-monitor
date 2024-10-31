@@ -31,7 +31,7 @@ interface IDeploymentMonitorWidgetState {
 }
 
 interface FilterValue extends IFilterState {
-  pipelineName: {
+  searchTerm: {
     value: string;
   };
 }
@@ -76,11 +76,12 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
 
   applyFilter() {
     const filterValue = this.filter.getState() as FilterValue;
-    if (filterValue?.pipelineName === undefined) {
+    if (filterValue?.searchTerm === undefined) {
       this.filteredTableItems = this.allTableItems;
     }
     else {
-      this.filteredTableItems = this.allTableItems.filter(item => item.name.toLowerCase().includes(filterValue.pipelineName.value.toLowerCase()));
+      this.filteredTableItems = this.allTableItems.filter(item => item.name.toLowerCase().includes(filterValue.searchTerm.value.toLowerCase()) ||
+        item.deploymentFrequency.toLowerCase().includes(filterValue.searchTerm.value.toLowerCase()));
     }
 
     this.itemProvider.value = new ArrayItemProvider(this.filteredTableItems);
@@ -118,7 +119,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
       average: environmentDetail.average,
     }));
 
-    this.filteredTableItems = this.allTableItems;
+    this.filteredTableItems = this.allTableItems.sort((a, b) => b.deploymentCount - a.deploymentCount);
 
     this.itemProvider = new ObservableValue<ArrayItemProvider<ITableItem>>(
       new ArrayItemProvider(this.filteredTableItems)
@@ -130,7 +131,7 @@ class DeploymentMonitorWidget extends React.Component<{}, IDeploymentMonitorWidg
         <div className="flex-grow">
           <div className="flex-grow">
             <FilterBar filter={this.filter}>
-              <KeywordFilterBarItem filterItemKey="pipelineName" placeholder="Filter by pipeline name" />
+              <KeywordFilterBarItem filterItemKey="searchTerm" placeholder="Filter by pipeline name or frequency" />
             </FilterBar>
           </div>
           <div className="flex-grow">
